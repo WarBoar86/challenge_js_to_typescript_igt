@@ -1,40 +1,86 @@
-import { Component } from 'react';
+import { Component, useState } from 'react';
 import { FiEdit3, FiTrash } from 'react-icons/fi';
 
 import { Container } from './styles';
 import api from '../../services/api';
 
-class Food extends Component {
-  constructor(props) {
-    super(props);
 
-    const { available } = this.props.food;
-    this.state = {
-      isAvailable: available
-    };
-  }
+  // constructor(props) {
+  //   super(props);
 
-  toggleAvailable = async () => {
-    const { food } = this.props;
-    const { isAvailable } = this.state;
+  //   const { available } = this.props.food;
+  //   this.state = {
+  //     isAvailable: available
+  //   };
+  // }
 
-    await api.put(`/foods/${food.id}`, {
-      ...food,
-      available: !isAvailable,
-    });
+  // toggleAvailable = async () => {
+  //   const { food } = this.props;
+  //   const { isAvailable } = this.state;
 
-    this.setState({ isAvailable: !isAvailable });
-  }
+  //   await api.put(`/foods/${food.id}`, {
+  //     ...food,
+  //     available: !isAvailable,
+  //   });
 
-  setEditingFood = () => {
-    const { food, handleEditFood } = this.props;
+  //   this.setState({ isAvailable: !isAvailable });
+  // }
 
-    handleEditFood(food);
-  }
+  // setEditingFood = () => {
+  //   const { food, handleEditFood } = this.props;
 
-  render() {
-    const { isAvailable } = this.state;
-    const { food, handleDelete } = this.props;
+  //   handleEditFood(food);
+  // }
+
+  // render() {
+  //   const { isAvailable } = this.state;
+  //   const { food, handleDelete } = this.props;
+  // }
+
+
+export interface foodDTO{
+  
+    id: number;
+    name: string
+    description: string
+    price: string
+    available: boolean;
+    image: string
+}
+
+
+interface FoodProps{
+  food: foodDTO; 
+  handleDelete: (foodId :number)=> void;
+  handleEditFood: (food : foodDTO)=> void;
+
+}
+
+
+
+  export default function Food ({food, handleEditFood, handleDelete}:FoodProps)  {
+
+    const [isAvailable, setIsAvailable] = useState(true)
+
+    async function toggleAvailable(){
+
+      await api.put(`/foods/${food.id}`, {
+        ...food,
+        available: !isAvailable,
+      });
+
+
+      setIsAvailable(!isAvailable);
+    }
+
+
+
+    function setEditingFood(food: foodDTO){
+
+      handleEditFood(food);
+
+    }
+
 
     return (
       <Container available={isAvailable}>
@@ -53,7 +99,7 @@ class Food extends Component {
             <button
               type="button"
               className="icon"
-              onClick={this.setEditingFood}
+              onClick={() => setEditingFood(food)}
               data-testid={`edit-food-${food.id}`}
             >
               <FiEdit3 size={20} />
@@ -77,7 +123,7 @@ class Food extends Component {
                 id={`available-switch-${food.id}`}
                 type="checkbox"
                 checked={isAvailable}
-                onChange={this.toggleAvailable}
+                onChange={toggleAvailable}
                 data-testid={`change-status-food-${food.id}`}
               />
               <span className="slider" />
@@ -86,7 +132,6 @@ class Food extends Component {
         </section>
       </Container>
     );
-  }
-};
+  };
 
-export default Food;
+
